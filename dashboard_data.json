@@ -1,0 +1,48 @@
+{
+    "sources": {
+        "google_analytics": {
+            "name": "Google Analytics",
+            "active": true
+        },
+        "ads": {
+            "name": "Advertising Platform",
+            "active": true
+        },
+        "crm": {
+            "name": "CRM System",
+            "active": true
+        }
+    },
+    "metrics": [
+        {
+            "source": "google_analytics",
+            "metric": "sessions",
+            "value": 1523.0,
+            "date": "2026-05-17"
+        },
+        {
+            "source": "google_analytics",
+            "metric": "sessions",
+            "value": 1000.0,
+            "date": "2026-05-18"
+        },
+        {
+            "source": "ads",
+            "metric": "clicks",
+            "value": 320.0,
+            "date": "2026-05-17"
+        },
+        {
+            "source": "ads",
+            "metric": "clicks",
+            "value": 180.0,
+            "date": "2026-05-18"
+        },
+        {
+            "source": "crm",
+            "metric": "revenue",
+            "value": 12000.0,
+            "date": "2026-05-17"
+        }
+    ]
+}
