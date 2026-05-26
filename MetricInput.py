@@ -1,6 +1,7 @@
 #  http://127.0.0.1:8000/docs
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from Metric import Metric
@@ -10,7 +11,7 @@ from PlotBuilder import PlotBuilder
 from DashboardConfig import DashboardConfig
 
 
-app = FastAPI()
+app = FastAPI(title="Final Unified Dashboard API")
 
 dashboard = UnifiedDashboard()
 config = DashboardConfig()
@@ -26,7 +27,7 @@ class MetricInput(BaseModel):
 @app.post("/ingest")
 def ingest_metric(item: MetricInput):
     if item.source not in config.sources:
-        return {"error": "Неизвестный source"}
+        raise HTTPException(status_code=400, detail="Неизвестный source")
 
     metric = Metric(item.source, item.metric, item.value, item.date)
     dashboard.add_metric(metric)
@@ -42,12 +43,15 @@ def get_kpi():
     kpi = PandasKPI(dashboard)
     kpi.build_showcase()
     kpi.group_kpi()
-    kpi.export_kpi_csv("kpi.csv")
+    csv_file = "kpi.csv"
+    kpi.export_kpi_csv(csv_file)
 
-    return {
-        "kpi": kpi.kpi_df.to_dict(orient="records"),
-        "csv_file": "kpi.csv"
-    }
+    return FileResponse(
+        path=csv_file,
+        media_type="text/csv",
+        filename="kpi.csv",
+        content_disposition_type="attachment"
+    )
 
 
 @app.get("/plots")
@@ -55,7 +59,14 @@ def get_plots():
     plot_builder = PlotBuilder(dashboard)
     files = plot_builder.save_metric_plots()
 
-    return {
-        "message": "Графики построены",
-        "files": files
-    }
+    if not files:
+        raise HTTPException(status_code=404, detail="Нет данных для графиков")
+
+    plot_file = files[0]
+
+    return FileResponse(
+        path=plot_file,
+        media_type="image/png",
+        filename=plot_file,
+        content_disposition_type="inline"
+    )
